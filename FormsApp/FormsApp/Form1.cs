@@ -7,6 +7,8 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.Data.SqlClient;
+using System.Xml.Linq;
+using System.Xml;
 
 namespace FormsApp
 {
@@ -114,6 +116,152 @@ namespace FormsApp
             }
 
         }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            new XDocument(
+            new XElement("root",
+            new XElement("someNode", "someValue")
+            )
+            ).Save(@"c:\kesha.xml");
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            {
+                XmlDocument doc = new XmlDocument();
+                XmlNode docNode = doc.CreateXmlDeclaration("1.0", "UTF-8", null);
+                doc.AppendChild(docNode);
+
+                XmlNode productsNode = doc.CreateElement("products");
+                doc.AppendChild(productsNode);
+
+                XmlNode productNode = doc.CreateElement("product");
+                XmlAttribute productAttribute = doc.CreateAttribute("id");
+                productAttribute.Value = "01";
+                productNode.Attributes.Append(productAttribute);
+                productsNode.AppendChild(productNode);
+
+                XmlNode nameNode = doc.CreateElement("Name");
+                nameNode.AppendChild(doc.CreateTextNode("Java"));
+                productNode.AppendChild(nameNode);
+                XmlNode priceNode = doc.CreateElement("Price");
+                priceNode.AppendChild(doc.CreateTextNode("Free"));
+                productNode.AppendChild(priceNode);
+
+                // Create and add another product node.
+                productNode = doc.CreateElement("product");
+                productAttribute = doc.CreateAttribute("id");
+                productAttribute.Value = "02";
+                productNode.Attributes.Append(productAttribute);
+                productsNode.AppendChild(productNode);
+                nameNode = doc.CreateElement("Name");
+                nameNode.AppendChild(doc.CreateTextNode("C#"));
+                productNode.AppendChild(nameNode);
+                priceNode = doc.CreateElement("Price");
+                priceNode.AppendChild(doc.CreateTextNode("Free"));
+                productNode.AppendChild(priceNode);
+
+                doc.Save("c:\\carte.xml");//Console.Out
+            }
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            //string
+            XDocument xmlDoc = XDocument.Load(@"c:\1.xml");
+            var test = xmlDoc.Descendants("Companies").Elements("Company").Select(r => r.Value).ToArray();
+            string result = string.Join(",", test);
+            Console.WriteLine(result);
+
+
+
+            string pathToXmlFile = @"C:\1.xml";
+            XElement patternDoc = XElement.Load(pathToXmlFile);
+            List<string> values = new List<string>();
+            foreach (var element in patternDoc.Elements("Companies").Elements("Company"))
+            {
+                values.Add(element.Value);
+                Console.WriteLine(element.Value);
+            }
+
+
+            //sau
+            /*var companies = xdoc.Descendants("Company").Select(c => (string)c).ToArray();*/
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            List<Utils.Address> addressList = new List<Utils.Address>();
+            string select = "select * from agenda.dbo.Address";
+            sqlConnection.Open();
+            SqlCommand cmd = new SqlCommand(select, sqlConnection);
+            using (SqlDataReader dr = cmd.ExecuteReader())
+            {
+                while (dr.Read())
+                {
+                    Utils.Address adrTemp = new Utils.Address();
+                    int test = -1;
+                    int.TryParse(dr[0].ToString(), out test);
+                    adrTemp.idAddress = test;
+                    adrTemp.City = dr[1].ToString();
+                    adrTemp.street = dr[2].ToString();
+                    bool tempBool;
+                    bool.TryParse(dr[3].ToString(), out tempBool);
+                    adrTemp.type = tempBool;
+                    addressList.Add(adrTemp);
+                }
+
+            }
+            sqlConnection.Close();
+
+            Utils.Address ad1 = new Utils.Address();
+            ad1.City = "Chisinau";
+            ad1.street = "st. cel Mare 162 ";
+            ad1.type = false;
+
+
+
+            XmlDocument doc = new XmlDocument();
+            XmlNode docNode = doc.CreateXmlDeclaration("1.0", "UTF-8", null);
+            doc.AppendChild(docNode);
+
+            XmlNode addressesNode = doc.CreateElement("addresses");
+            doc.AppendChild(addressesNode);
+
+            foreach (var item in addressList)
+            {
+
+
+                XmlNode addressNode = doc.CreateElement("address");
+                //adding 0 attributte - idAddress
+                XmlAttribute addressAttributeIdAddress = doc.CreateAttribute("idAddress");
+                addressAttributeIdAddress.Value = item.idAddress.ToString();
+                addressNode.Attributes.Append(addressAttributeIdAddress);
+                //adding 1 attributte - City
+                XmlAttribute addressAttributeCity = doc.CreateAttribute("City");
+                addressAttributeCity.Value = item.City;
+                addressNode.Attributes.Append(addressAttributeCity);
+                //addings 2nd attribute - Street
+                XmlAttribute addressAttributeStreet = doc.CreateAttribute("Street");
+                addressAttributeStreet.Value = item.street;
+                addressNode.Attributes.Append(addressAttributeStreet);
+
+                //addings 3nd attribute - Type
+                XmlAttribute addressAttributeType = doc.CreateAttribute("Type");
+                addressAttributeType.Value = item.type.ToString();
+                addressNode.Attributes.Append(addressAttributeType);
+
+                addressesNode.AppendChild(addressNode);
+
+            }
+            doc.Save(@"c:\AddressTable.xml");
+
+
+
+
+        }
+
 
 
         //Datagridview1.Rows.Remove(Datagridview1.Rows(Datagridview1.SelectedCells.Item(0).RowIndex))

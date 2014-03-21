@@ -12,6 +12,7 @@ public class Utils
     //adresa fizica/juridica
     public class Address
     {
+        public int idAddress { get; set; }
         public string City { get; set; }
         public string street { get; set; }
         public bool type { get; set; }
