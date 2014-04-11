@@ -169,21 +169,27 @@ namespace FormsApp
         private void button3_Click(object sender, EventArgs e)
         {
             //string
-            XDocument xmlDoc = XDocument.Load(@"c:\1.xml");
-            var test = xmlDoc.Descendants("Companies").Elements("Company").Select(r => r.Value).ToArray();
-            string result = string.Join(",", test);
+            /*XDocument xmlDoc = XDocument.Load(@"c:\employees.xml");
+            var test = xmlDoc.Descendants("Employees")
+                .Elements("Employee").Elements("FirstName").Select(r => r.Value).ToArray();
+            string result = string.Join("  , ", test);
+            Console.WriteLine(result);*/
+
+            XDocument xmlDoc = XDocument.Load(@"c:\AddressTable.xml");
+            var test = xmlDoc.Descendants("addresses")
+                .Elements("address").Select(r => r.Value).ToArray();
+            string result = string.Join("  , ", test);
             Console.WriteLine(result);
 
 
-
-            string pathToXmlFile = @"C:\1.xml";
+            /*string pathToXmlFile = @"C:\employees.xml";
             XElement patternDoc = XElement.Load(pathToXmlFile);
             List<string> values = new List<string>();
-            foreach (var element in patternDoc.Elements("Companies").Elements("Company"))
+            foreach (var element in patternDoc.Elements("Employees").Elements("Employee"))
             {
                 values.Add(element.Value);
                 Console.WriteLine(element.Value);
-            }
+            }*/
 
 
             //sau
@@ -256,14 +262,144 @@ namespace FormsApp
 
             }
             doc.Save(@"c:\AddressTable.xml");
+            //MessageBox.Show("AddressTable was exported to c:/AddressTable.xml location");
 
+            //2nd node in node
+            /*foreach (var item in addressList)
+            {
+                XmlNode addressNode = doc.CreateElement("address");
+                //adding 0 attributte - idAddress
+                XmlNode addressNodeIdAddress = doc.CreateElement("idAddress");
+                addressNodeIdAddress.Value = item.idAddress.ToString();
+                addressNode.AppendChild(addressNodeIdAddress);
 
+                //adding 1 attributte - City
+                XmlNode addressNodeCity = doc.CreateElement("City");
+                addressNodeCity.Value = item.City;
+                addressNode.AppendChild(addressNodeCity);
+                //addings 2nd attribute - Street
+                XmlNode addressNodeStreet = doc.CreateElement("Street");
+                addressNodeStreet.Value = item.street;
+                addressNode.AppendChild(addressNodeStreet);
 
+                //addings 3nd attribute - Type
+                XmlNode addressNodeType = doc.CreateElement("Type");
+                addressNodeType.Value = item.type.ToString();
+                addressNode.AppendChild(addressNodeType);
 
+                addressesNode.AppendChild(addressNode);
+
+            }
+            doc.Save(@"c:\AddressTable2.xml");*/
         }
 
+        private void buttonImportAddressTableFromXML_Click(object sender, EventArgs e)
+        {
+            List<Utils.Address> addressesToBeSavedIntoDB = new List<Utils.Address>();
+            using (XmlReader reader = XmlReader.Create("c:\\AddressTable.xml")) 
+            {
+                int idAddress = -1;
+                bool type;
+
+                reader.MoveToContent();
+                while (reader.Read())
+                {
+                    if (reader.NodeType == XmlNodeType.Element
+                        && reader.Name == "address") 
+                    {
+                        Utils.Address tempAddr = new Utils.Address();
+                        Int32.TryParse( reader.GetAttribute("idAddress"), out idAddress);
+                        tempAddr.idAddress = idAddress;
+                        tempAddr.City = reader.GetAttribute("City");
+                        tempAddr.street = reader.GetAttribute("Street");//key sensitive. Street!=street
+                        bool.TryParse(reader.GetAttribute("Type"), out type);
+                        tempAddr.type = type;
+                        addressesToBeSavedIntoDB.Add(tempAddr);
 
 
+                        // pentru Tag in Tag
+                        /*while (reader.Read())
+                        {
+                            
+                            if (reader.NodeType == XmlNodeType.Element &&
+                                reader.Name == "idAddress")
+                            {
+                                idAddress = reader.ReadString();
+                                break;
+                            }
+                        }*/
+                        //yield return new Book() {Title = title, Author = author};
+                    }
+                }                
+            }// finish using block
+
+            //was created table Address2 -> primary/fk relation
+            sqlConnection.Open();
+            string sqlCommand = "delete from Address2";//
+            int affectedRows = Utils.insertSQLCommandIntoTable(sqlConnection, sqlCommand);
+            MessageBox.Show(affectedRows.ToString() + " rows affected!");
+            foreach (var item in addressesToBeSavedIntoDB)
+            {
+                //insert into Address values (7, 'Chisinau', 'Studentilor 7/1', 1);
+                sqlCommand = String.Format("insert into Address2 values ({0}, '{1}', '{2}', {3})",
+                    item.idAddress, item.City, item.street, Convert.ToInt16(item.type));//covert!!!
+                affectedRows = Utils.insertSQLCommandIntoTable(sqlConnection, sqlCommand);
+                if (affectedRows != 1)
+                    MessageBox.Show("Problem at inserting row with ID=" + item.idAddress);
+            }
+            sqlConnection.Close();
+            MessageBox.Show("Finished to import AddressTable.xml into Agenda DB");
+
+
+            foreach (var item2 in test_yieldMethod())
+            {
+                System.Diagnostics.Debug.WriteLine(item2.idAddress.ToString() + " " + item2.City + " " +item2.type);
+                
+            }
+            
+        }
+        //When you use the yield keyword in a statement, you indicate that the method, operator, or get accessor in which it appears is an iterator.
+        private IEnumerable<Utils.Address> test_yieldMethod()//IEnumerator
+        {
+            //List<Utils.Address> addressesToBeSavedIntoDB = new List<Utils.Address>();
+            using (XmlReader reader = XmlReader.Create("c:\\AddressTable.xml"))
+            {
+                int idAddress = -1;
+                bool type;
+
+                reader.MoveToContent();
+                while (reader.Read())
+                {
+                    if (reader.NodeType == XmlNodeType.Element
+                        && reader.Name == "address")
+                    {
+                        Utils.Address tempAddr = new Utils.Address();
+                        Int32.TryParse(reader.GetAttribute("idAddress"), out idAddress);
+                        tempAddr.idAddress = idAddress;
+                        tempAddr.City = reader.GetAttribute("City");
+                        tempAddr.street = reader.GetAttribute("Street");//key sensitive. Street!=street
+                        bool.TryParse(reader.GetAttribute("Type"), out type);
+                        tempAddr.type = type;
+                        //addressesToBeSavedIntoDB.Add(tempAddr);
+
+
+                        // pentru Tag in Tag
+                        /*while (reader.Read())
+                        {
+                            
+                            if (reader.NodeType == XmlNodeType.Element &&
+                                reader.Name == "idAddress")
+                            {
+                                idAddress = reader.ReadString();
+                                break;
+                            }
+                        }*/
+                        yield return new Utils.Address() { idAddress = tempAddr.idAddress,
+                        City = tempAddr.City, street = tempAddr.street, type = tempAddr.type}; //{Title = title, Author = author};
+                    }
+                }
+            }
+        }
         //Datagridview1.Rows.Remove(Datagridview1.Rows(Datagridview1.SelectedCells.Item(0).RowIndex))
     }
 }
