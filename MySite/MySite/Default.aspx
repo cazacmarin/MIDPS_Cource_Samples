@@ -16,9 +16,10 @@
                         AutoGenerateSelectButton="True" CellPadding="4" DataKeyNames="id_address" 
                         DataSourceID="SqlDataSource1" ForeColor="#333333" GridLines="None" 
                         onselectedindexchanged="GridView1_SelectedIndexChanged" ShowFooter="True" 
-                        Width="492px" style="text-align: center">
+                        Width="492px" style="text-align: center" ondatabound="GridView1_DataBound">
                         <RowStyle BackColor="#E3EAEB" />
                         <Columns>
+                            <asp:CommandField ShowEditButton="True" />
                             <asp:TemplateField HeaderText="id" SortExpression="id_address">
                               
                                 <EditItemTemplate>
@@ -60,7 +61,10 @@
                             </asp:TemplateField>
                             <asp:TemplateField HeaderText="Tipul adresei" SortExpression="type2">
                                 <EditItemTemplate>
-                                    <asp:TextBox ID="TextBox3" runat="server" Text='<%# Bind("type2") %>'></asp:TextBox>
+                                   <asp:DropDownList runat="server" ID="ddl">
+                                    <asp:ListItem>val1</asp:ListItem>
+                                    
+                                   </asp:DropDownList> 
                                 </EditItemTemplate>
                                 <FooterTemplate>
                                     <asp:TextBox ID="TextBoxType" runat="server"></asp:TextBox>
@@ -79,6 +83,7 @@
                      
                                 </ItemTemplate>
                             </asp:TemplateField>
+                            <asp:TemplateField HeaderText="ddl"></asp:TemplateField>
                         </Columns>
                         <FooterStyle BackColor="#1C5E55" Font-Bold="True" ForeColor="White" />
                         <PagerStyle BackColor="#666666" ForeColor="White" HorizontalAlign="Center" />

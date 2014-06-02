@@ -11,33 +11,40 @@ namespace MySite
 {
     public partial class WebForm2 : System.Web.UI.Page
     {
+        string CS = ConfigurationManager.ConnectionStrings["SiteConnection"].ConnectionString;
+
         protected void Page_Load(object sender, EventArgs e)
         {
             if (!Page.IsPostBack)
             {
-                populate();
+                populate(DropDownList1, "SELECT eMailAddress FROM eMail WHERE id_eMail_Agenda = " + Session["idagenda"].ToString());
             }
         }
 
-        protected void populate()
+        protected void populate(DropDownList ddl, string query)
         {
-            string CS = ConfigurationManager.ConnectionStrings["SiteConnection"].ConnectionString;
-
+            
             using (SqlConnection conn = new SqlConnection(CS))
             {
                 conn.Open();
 
-                SqlCommand command = new SqlCommand("SELECT eMailAddress FROM eMail WHERE id_eMail_Agenda = @id", conn);
-                command.Parameters.AddWithValue("@id",Session["idagenda"].ToString());
+                SqlCommand command = new SqlCommand(query, conn);
+               // command.Parameters.AddWithValue("@id",Session["idagenda"].ToString());
 
                 SqlDataReader reader = command.ExecuteReader();
                 while (reader.Read())
                 {
-                    DropDownList1.Items.Add(reader["eMailAddress"].ToString());
+                    ddl.Items.Add(reader[0].ToString());
 
                 }
             }
 
+        }
+
+        protected void DropDownList1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            DropDownList2.Items.Clear();
+            populate(DropDownList2, "SELECT type1 FROM eMail WHERE id_eMail_Agenda = " + Session["idagenda"].ToString());
         }
     }
 }

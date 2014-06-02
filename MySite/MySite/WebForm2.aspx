@@ -13,7 +13,9 @@
     <tr>
     <td>
         <asp:GridView ID="GridView1" runat="server" AutoGenerateColumns="False" 
-            DataKeyNames="id_email" DataSourceID="SqlDataSource1">
+            DataKeyNames="id_email" DataSourceID="SqlDataSource1" CellPadding="4" 
+            ForeColor="#333333" GridLines="None">
+            <RowStyle BackColor="#E3EAEB" />
             <Columns>
                 <asp:BoundField DataField="id_email" HeaderText="id_email" ReadOnly="True" 
                     SortExpression="id_email" />
@@ -23,6 +25,12 @@
                 <asp:BoundField DataField="id_eMail_Agenda" HeaderText="id_eMail_Agenda" 
                     SortExpression="id_eMail_Agenda" />
             </Columns>
+            <FooterStyle BackColor="#1C5E55" Font-Bold="True" ForeColor="White" />
+            <PagerStyle BackColor="#666666" ForeColor="White" HorizontalAlign="Center" />
+            <SelectedRowStyle BackColor="#C5BBAF" Font-Bold="True" ForeColor="#333333" />
+            <HeaderStyle BackColor="#1C5E55" Font-Bold="True" ForeColor="White" />
+            <EditRowStyle BackColor="#7C6F57" />
+            <AlternatingRowStyle BackColor="White" />
         </asp:GridView>
         </td>
     </tr>
@@ -61,7 +69,15 @@
     </tr>
     <tr>
     <td>
-        <asp:DropDownList ID="DropDownList1" runat="server">
+        <asp:DropDownList ID="DropDownList1" runat="server" AutoPostBack="True" 
+            onselectedindexchanged="DropDownList1_SelectedIndexChanged">
+        </asp:DropDownList>
+        </td>
+    </tr>
+    
+    <tr>
+    <td>
+        <asp:DropDownList ID="DropDownList2" runat="server" AutoPostBack="True">
         </asp:DropDownList>
         </td>
     </tr>
